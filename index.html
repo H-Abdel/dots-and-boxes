@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Dots and boxes</title>
+	<link rel="stylesheet" type="text/css" href="styles/styles.css">
+  <script type="text/javascript" src = "js/game.js"></script>
+</head>
+<body>
+ <canvas id="canvas" width = "500" height = "500"></canvas>
+
+<script type="text/javascript">
+
+  function writeMessage(context, message){
+      context.font = "18pt Calibri";
+      context.fillStyle = "black";
+      context.fillText(message, 10, 250);
+  }
+
+   window.onload = function(){
+
+      var game = new Game("canvas");
+      var canvas = game.getCanvas();
+      var context = game.getContext();
+      var message = "";
+
+      game.setStage(function(){
+        that = this;
+
+        this.clear();
+
+        // dessine toutes les dots
+        for (var i=0; i < this.dots.length; i++) {
+          this.dots[i].draw(context);
+        }
+        // dessine toutes les barres en associant un événement mousedown à chaqu'une d'elles
+        for (var i = 0; i < this.barres.length; i++) {
+          this.beginRegion();
+          this.barres[i].draw(context);
+          this.addRegionEventListener("mousedown", function(){ 
+              // Le traitement à effectuer quand on click sur la barre "i"
+              that.barres[i].fill = "red";
+              that.barres[i].isClicked = true;
+          });
+          this.closeRegion();
+        }
+
+      });
+
+   }
+
+</script>
+
+</body>
+</html>
