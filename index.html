@@ -6,43 +6,106 @@
   <script type="text/javascript" src = "js/game.js"></script>
 </head>
 <body>
- <canvas id="canvas" width = "500" height = "500"></canvas>
+ <canvas id="canvas"></canvas>
 
 <script type="text/javascript">
 
-  function writeMessage(context, message){
-      context.font = "18pt Calibri";
-      context.fillStyle = "black";
-      context.fillText(message, 10, 250);
-  }
+    // Cette fonction sert à afficher un message dans un context donné
+    function writeMessage(context, message){
+        context.font = "18pt Calibri";
+        context.fillStyle = "black";
+        context.fillText(message, 10, 25);
+    }
 
+   // Quand la page est chargée la fonction onloead est exécutée
    window.onload = function(){
-
-      var game = new Game("canvas");
+      // On instancie un objet game 
+      var game = new Game("canvas", 5, 5);
+      // On récupère la canvas et le context
       var canvas = game.getCanvas();
       var context = game.getContext();
-      var message = "";
-
+      
+      // ************ Affichage console ***************
+      // inspecter l'objet game
+      console.log(game);
+      // inspecter l'attribut barres[] de l'objet game
+      for (var i=0; i < game.barres.length; i++) {
+          console.log( game.barres[i].x + " - " + 
+                       game.barres[i].y + " - " + 
+                       game.barres[i].w);
+      }
+      // **********************************************
+      
+      // La boucle du jeu
+      // Ceci est appelé après chaque click
       game.setStage(function(){
-        that = this;
 
+        // la variable that permet de countourner le fameux problème de "this"
+        var that = this;
+
+        // On efface le tous de la canvas
         this.clear();
-
+        
         // dessine toutes les dots
-        for (var i=0; i < this.dots.length; i++) {
+        for (var i = 0; i < this.dots.length; i++) {
           this.dots[i].draw(context);
         }
+
         // dessine toutes les barres en associant un événement mousedown à chaqu'une d'elles
         for (var i = 0; i < this.barres.length; i++) {
+          // Pour chaque barre on définit une région
           this.beginRegion();
+          // on dessine la barre 
           this.barres[i].draw(context);
+          // on rajoute un événement "mousedown" (click) à la barre
           this.addRegionEventListener("mousedown", function(){ 
               // Le traitement à effectuer quand on click sur la barre "i"
-              that.barres[i].fill = "red";
-              that.barres[i].isClicked = true;
+              // Si c'est au joeur de jouer et la barre n'a pas été clickée auparavant
+              if (that.player && !that.barres[i].isClicked) {
+                  // Je change la couleur de la barre
+                  that.barres[i].fill = "blue";
+                  // Je designe cette doit comme une barre déjà clickée
+                  // Ceci dit qu'il ne saura plus clickable ni par le joueur ni par la machine
+                  that.barres[i].isClicked = true;
+                  // Je remet la variable player à flase en donnant ainsi la main à la machine
+                  // rappel: player = false -> c'est à la machine de jouer
+                  //         player = true  -> c'est au joueur de jouer
+                  that.player = !that.player;
+                  // Je modifie le score on donnant un point au joueur
+                  // rappel : score[o] -> score machine / score[1] -> score joueur
+                  that.score[1]++;
+              }
           });
           this.closeRegion();
         }
+
+        // Ici la machine vient jouer aléatoirement (pour l'instant)
+        // C'est là qu'il faut rajouter l'ago "inteligent" 
+        if (!that.player) { // ce bloc de if est exécuté si et seulement si la variable player est égal à false
+            do { // je génère un nombre aléatoire entre 0 et 39 
+                var k = Math.floor((Math.random() * 39) + 0);
+                // tant que la barre qui se trouve à l'indice k du tableau barres n'a pas été clickée
+            } while (that.barres[k].isClicked);
+            // Je change la couleur de la barre se trouvant à l'indice k
+            that.barres[k].fill = "red";
+            // Je designe cette doit comme une barre déjà clickée
+            // Ceci dit qu'il ne saura plus clickable ni par le joueur ni par la machine
+            that.barres[k].isClicked = true;
+            // Je remet la variable player à true en donnant ainsi la main au joueur
+            // rappel: player = false -> c'est à la machine de jouer
+            //         player = true  -> c'est au joueur de jouer
+            that.player = !that.player;
+            // Je modifie le score on donnant un point à la machine
+            // rappel : score[o] -> score machine / score[1] -> score joueur
+            that.score[0]++;
+        }
+
+        // J'affiche le score de chaqu'un en utilisant la fonction
+        // writeMessage définit un peu plus haut de ce fichier
+        writeMessage(context,
+            "machine : " +this.score[0]+
+            " - joueur : " +this.score[1]
+        );
 
       });
 

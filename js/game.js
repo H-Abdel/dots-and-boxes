@@ -32,19 +32,33 @@ Barre.prototype.draw = function(ctx) {
 	ctx.stroke(); 
 };
 /******************************************************* */
-var Game = function(canvas){
+// Classe Boxe
+function Boxe (params) {
+    this.barres = params.barres;    // Tableau contenant les 4 barres qui délimitent la boxe
+    this.isGot = false; // est true si toutes les barres ont isClicked à true
+}
+/******************************************************* */
+// Classe Game
+var Game = function(canvas, nbrHor, nbrVer){
+    this.nbrHor = nbrHor;    // Le nombre de point horizental
+    this.nbrVer = nbrVer;    // Le nombre de point vertical
     this.canvas = document.getElementById(canvas);
+    this.canvas.width = this.nbrHor*100;
+    this.canvas.height = this.nbrVer*100;
     this.context = this.canvas.getContext("2d");
     this.stage = undefined;
     this.listening = false;
 
+    this.player = true;
     
-    this.nbrHor = 5;    // Le nombre de point horizental
-    this.nbrVer = 5;    // Le nombre de point vertical
+    this.score = [0, 0];    // score[0] -> machine     score[1] -> joeur    
+    
+    
     this.dots = [];     // Le tableau contenant tous les objets de type "Dot"
     this.barres = [];   // Le tableau contenant tous les objets de type "Barre"
+    this.boxes = [];    // Le tableau contenant tous les objets de type "Boxe"
     
-    // Remplissage des deux tableaux dots et barres
+    // Construction des deux tableaux dots et barres
     for (var j = 0; j < this.nbrHor; j++) {
         for (var i =0;  i < this.nbrVer ; i++) {
             this.dots.push(new Dot({
@@ -73,6 +87,16 @@ var Game = function(canvas){
                 }));
             }
         }
+    }
+
+    // Construction du tableau boxes
+    for (var i = 0; i < 16; i++) {
+        this.boxes.push(new Boxe({
+            // ici faut mettre les quatres barres qui délimitent la boxe en itération
+            // Ces barres là faut aller les chercher dans le "this.barres"
+            // Pour cela faudrait peut être repenser la structure de données
+            barres: []  
+        })); 
     }
 
     // #########################################################
@@ -171,14 +195,6 @@ Game.prototype.listen = function(){
     
 };
 
-Game.prototype.getMousePos = function(evt){
-    return this.mousePos;
-};
-
-Game.prototype.getTouchPos = function(evt){
-    return this.touchPos;
-};
-
 Game.prototype.setMousePosition = function(evt){
     var mouseX = evt.clientX - this.getCanvasPos().left + window.pageXOffset;
     var mouseY = evt.clientY - this.getCanvasPos().top + window.pageYOffset;
@@ -232,8 +248,6 @@ Game.prototype.closeRegion = function(){
             this.currentRegion.onmouseup();
             this.mouseUp = false;
         }
-        
-        
         
     }
     else if (this.regionIndex == this.lastRegionIndex) {
