@@ -35,7 +35,36 @@
                        game.barres[i].w);
       }
       // **********************************************
-      
+
+      console.log(game.barresVer);
+      console.log(game.barresHor);
+
+      var t = [];
+      t.push(game.barresVer[0]);
+      t.push(game.barresVer[1]);
+      t.push(game.barresHor[0]);
+      t.push(game.barresHor[1]);
+
+      // Ceci ne marche pas et on est fatigués à demain
+      var M = [][];
+
+      var indexVer = 0;
+      var indexHor = 0;
+      for (var i = 0; i < 4; i++) {
+        for (var j = 0; j< 4; j++) {
+          M[i][j].push( new Boxe ({
+            barres: [].push(game.barresVer[indexVer])
+                      .push(game.barresVer[indexVer+1])
+                      .push(game.barresHor[indexHor])
+                      .push(game.barresHor[indexHor+1])
+          }));
+          indexVer++;
+          indexHor++;
+        }
+      };
+        
+
+      console.log(t);
       // La boucle du jeu
       // Ceci est appelé après chaque click
       game.setStage(function(){

@@ -58,7 +58,11 @@ var Game = function(canvas, nbrHor, nbrVer){
     this.barres = [];   // Le tableau contenant tous les objets de type "Barre"
     this.boxes = [];    // Le tableau contenant tous les objets de type "Boxe"
     
+    this.barresHor = [];
+    this.barresVer = [];
+
     // Construction des deux tableaux dots et barres
+    
     for (var j = 0; j < this.nbrHor; j++) {
         for (var i =0;  i < this.nbrVer ; i++) {
             this.dots.push(new Dot({
@@ -66,6 +70,9 @@ var Game = function(canvas, nbrHor, nbrVer){
                 y: 50+ 100*j,
                 r: 5
             }));
+        }
+    }
+/*
             if(j!= this.nbrVer - 1) {
                 this.barres.push(new Barre({
                     x: 45+ 100*i,
@@ -88,8 +95,42 @@ var Game = function(canvas, nbrHor, nbrVer){
             }
         }
     }
+    */
 
-    // Construction du tableau boxes
+    
+    // Construction du tableau barresVer
+    // Barres verticales un ligne après l'autre
+    for (var j = 0; j < this.nbrVer - 1; j++) {
+        for (var i = 0; i < this.nbrHor; i++) {
+            this.barresVer.push(new Barre({
+                x: 45+ 100*i,
+                y: 55 + 100*j,
+                w: 10,
+                h: 90,
+                fill: "white",
+                isClicked: false
+        }));
+        }
+    };
+    // Construction du tableau barresHor
+    // Barres horizontales coulonne après l'autre
+    for (var j = 0; j < this.nbrHor; j++) {
+        for (var i = 0; i < this.nbrVer - 1; i++) {
+            this.barresHor.push(new Barre({
+                x: 55+ 100*i,
+                y: 45 + 100*j,
+                w: 90,
+                h: 10,
+                fill: "white",
+                isClicked: false
+        }));
+        }
+    };
+
+
+
+
+        
     for (var i = 0; i < 16; i++) {
         this.boxes.push(new Boxe({
             // ici faut mettre les quatres barres qui délimitent la boxe en itération
