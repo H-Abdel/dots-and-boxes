@@ -20,52 +20,47 @@
    // Quand la page est chargée la fonction onloead est exécutée
    window.onload = function(){
       // On instancie un objet game 
-      var game = new Game("canvas", 5, 5);
+      var game = new Game("canvas",4,4);
       // On récupère la canvas et le context
       var canvas = game.getCanvas();
       var context = game.getContext();
       
+      // **********************************************
       // ************ Affichage console ***************
       // inspecter l'objet game
       console.log(game);
+      
       // inspecter l'attribut barres[] de l'objet game
       for (var i=0; i < game.barres.length; i++) {
           console.log( game.barres[i].x + " - " + 
                        game.barres[i].y + " - " + 
                        game.barres[i].w);
       }
-      // **********************************************
-
+      
+      // inspecter l'attribut barresVer[] de l'objet game
+      /**
+       *        | | | | | | |
+       *        | | | | | | |
+       *        | | | | | | |
+       */
       console.log(game.barresVer);
+      
+      // inspecter l'attribut barresHor[] de l'objet game
+      /**
+       *        _ _ _ _ _ _ _
+       *        _ _ _ _ _ _ _ 
+       *        _ _ _ _ _ _ _ 
+       *        _ _ _ _ _ _ _  
+       */
       console.log(game.barresHor);
-
-      var t = [];
-      t.push(game.barresVer[0]);
-      t.push(game.barresVer[1]);
-      t.push(game.barresHor[0]);
-      t.push(game.barresHor[1]);
-
-      // Ceci ne marche pas et on est fatigués à demain
-      var M = [][];
-
-      var indexVer = 0;
-      var indexHor = 0;
-      for (var i = 0; i < 4; i++) {
-        for (var j = 0; j< 4; j++) {
-          M[i][j].push( new Boxe ({
-            barres: [].push(game.barresVer[indexVer])
-                      .push(game.barresVer[indexVer+1])
-                      .push(game.barresHor[indexHor])
-                      .push(game.barresHor[indexHor+1])
-          }));
-          indexVer++;
-          indexHor++;
-        }
-      };
-        
-
-      console.log(t);
-      // La boucle du jeu
+      console.log(game.boxes);
+      
+      // inspecter game.grille
+      console.log(game.grille);
+      // **********************************************
+      // **********************************************
+      
+            // La boucle du jeu
       // Ceci est appelé après chaque click
       game.setStage(function(){
 
@@ -79,54 +74,53 @@
         for (var i = 0; i < this.dots.length; i++) {
           this.dots[i].draw(context);
         }
-
+        
         // dessine toutes les barres en associant un événement mousedown à chaqu'une d'elles
-        for (var i = 0; i < this.barres.length; i++) {
+        for (var h = 0; h < this.barres.length; h++) {
           // Pour chaque barre on définit une région
           this.beginRegion();
           // on dessine la barre 
-          this.barres[i].draw(context);
+          this.barres[h].draw(context);
           // on rajoute un événement "mousedown" (click) à la barre
           this.addRegionEventListener("mousedown", function(){ 
               // Le traitement à effectuer quand on click sur la barre "i"
               // Si c'est au joeur de jouer et la barre n'a pas été clickée auparavant
-              if (that.player && !that.barres[i].isClicked) {
+              if (that.player && !that.barres[h].isClicked) {
                   // Je change la couleur de la barre
-                  that.barres[i].fill = "blue";
+                  that.barres[h].fill = "blue";
                   // Je designe cette doit comme une barre déjà clickée
                   // Ceci dit qu'il ne saura plus clickable ni par le joueur ni par la machine
-                  that.barres[i].isClicked = true;
+                  that.barres[h].isClicked = true;
+
+                  // on parcours toute les boxes
+                for (var i = 0; i < that.boxes.length; i++) {
+                //Si la boxe courrante contient la barre
+                  if (that.boxes[i].contient(that.barres[h])) {
+                  // on parcours toutes les barres de la box et on change sa valeur à true si toute sont clické
+                    that.boxes[i].isGot = true;                 
+                    for (var j in that.boxes[i].barresBoxe) {
+                      if (!that.boxes[i].barresBoxe[j].isClicked)
+                        that.boxes[i].isGot = false;                    
+                    }   
+                  }                  
+                }
                   // Je remet la variable player à flase en donnant ainsi la main à la machine
                   // rappel: player = false -> c'est à la machine de jouer
                   //         player = true  -> c'est au joueur de jouer
                   that.player = !that.player;
                   // Je modifie le score on donnant un point au joueur
                   // rappel : score[o] -> score machine / score[1] -> score joueur
-                  that.score[1]++;
+                  that.score[1]++;                  
               }
           });
-          this.closeRegion();
+          this.closeRegion();          
         }
-
-        // Ici la machine vient jouer aléatoirement (pour l'instant)
-        // C'est là qu'il faut rajouter l'ago "inteligent" 
+        
+        //la machine joue
         if (!that.player) { // ce bloc de if est exécuté si et seulement si la variable player est égal à false
-            do { // je génère un nombre aléatoire entre 0 et 39 
-                var k = Math.floor((Math.random() * 39) + 0);
-                // tant que la barre qui se trouve à l'indice k du tableau barres n'a pas été clickée
-            } while (that.barres[k].isClicked);
-            // Je change la couleur de la barre se trouvant à l'indice k
-            that.barres[k].fill = "red";
-            // Je designe cette doit comme une barre déjà clickée
-            // Ceci dit qu'il ne saura plus clickable ni par le joueur ni par la machine
-            that.barres[k].isClicked = true;
-            // Je remet la variable player à true en donnant ainsi la main au joueur
-            // rappel: player = false -> c'est à la machine de jouer
-            //         player = true  -> c'est au joueur de jouer
-            that.player = !that.player;
-            // Je modifie le score on donnant un point à la machine
-            // rappel : score[o] -> score machine / score[1] -> score joueur
-            that.score[0]++;
+          var machine = new Player();
+          machine.ia(that); //j'appel l'algo de l'IA  
+          that.player = !that.player;          
         }
 
         // J'affiche le score de chaqu'un en utilisant la fonction
@@ -138,7 +132,7 @@
 
       });
 
-   }
+   }     
 
 </script>
 

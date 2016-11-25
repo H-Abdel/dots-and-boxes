@@ -35,62 +35,13 @@ Barre.prototype.draw = function(ctx) {
 /******************************************************* */
 // Classe Boxe
 function Boxe (params) {
-    this.barresBoxe = params.barresBoxe;    // Tableau contenant les 4 barres qui délimitent la boxe
+    //this.barres = params.barres;    // Tableau contenant les 4 barres qui délimitent la boxe
+    this.barreV1 = params.barreV1;
+    this.barreV2 = params.barreV2;
+    this.barreH1 = params.barreH1;
+    this.barreH2 = params.barreH2;
     this.isGot = false; // est true si toutes les barres ont isClicked à true
 }
-
-Boxe.prototype.contient = function(barre) {
-    for (var index=0; index < this.barresBoxe.length;index++) {
-        // Verifier les coordonnées plutot que comparer les objets
-        if (this.barresBoxe[index].y == barre.y && this.barresBoxe[index].x == barre.x){
-            return true;
-        }
-    }
-    return false; 
-}
-/********************************************************/
-// Classe Player
-function Player (params) {
-    //this.score = params.score;
-    //this.couleur = params.couleur;
-    //this.tour = false;
-    //this.name = params.name;
-}
-
-Player.prototype.ia = function(game) {    
-    //choisir une barre au hasard par default 
-    var chosenBarre = {i: Math.floor((Math.random() * 8) + 0), j: Math.floor((Math.random() * 3) + 0)};
-    for(var i = 0; i < game.boxes.length; i++){ //parcour de toutes les boxes
-        var barresClicked = 0;
-        for(var j = 0; j < 4; j++){ // parcour d'une boxe
-            
-            if(game.boxes[i].barresBoxe[j].isClicked){
-                barresClicked += 1;
-            }          
-        }
-
-        if(barresClicked == 3){ //si dans une boxe il y a 3 barres qui sont déjà cliquées tu prend la 4ème
-            for(var j = 0; j < 4 ; j++){
-                //on stoque la barre meilleure 
-                if(!game.boxes[i].barresBoxe[j].isClicked){
-                   chosenBarre.i = i;
-                   chosenBarre.j = j;
-                   chosenBarre.isScoring = true;
-                }                
-            }                           
-        }
-    }    
-        if(!game.boxes[chosenBarre.i].barresBoxe[chosenBarre.j].isClicked){
-            game.boxes[chosenBarre.i].barresBoxe[chosenBarre.j].fill = "red";
-            game.boxes[chosenBarre.i].barresBoxe[chosenBarre.j].isClicked = true;
-            if(chosenBarre.isScoring){
-                game.score[0]++;
-                game.boxes[chosenBarre.i].isGot = true; 
-            }
-
-        }
-    }
-
 /******************************************************* */
 // Classe Grille 
 function Grille (params) {
@@ -113,7 +64,7 @@ var Game = function(canvas, nbrHor, nbrVer){
     this.stage = undefined;
     this.listening = false;
 
-    this.player = [];
+    this.player = true;
     
     this.score = [0, 0];    // score[0] -> machine     score[1] -> joeur    
     
@@ -150,9 +101,8 @@ var Game = function(canvas, nbrHor, nbrVer){
                         fill: "white",
                         isClicked: false
                 });
-               // this.barres.push(barre);
+                this.barres.push(barre);
                 this.barresVer.push(barre);
-                //this.barresVer[this.barresVer.length] = this.barres[this.barres.length];
             };
        
         // Construction du tableau barresHor
@@ -168,42 +118,28 @@ var Game = function(canvas, nbrHor, nbrVer){
                         isClicked: false
                 });
                 this.barresHor.push(barre);
-               // this.barres.push(barre);
-                //this.barresHor[this.barresHor.length] = this.barres[this.barres.length];
+                this.barres.push(barre);
             };
 
         }
     }
-
-
-    this.barres = this.barresVer.concat(this.barresHor);
 
             // ici faut mettre les quatres barres qui délimitent la boxe en itération
             // Ces barres là faut aller les chercher dans le "this.barres"
             // Pour cela faudrait peut être repenser la structure de données
             
   
-    for (var i = 0; i < (this.barres.length / 2) - 1;) {
-        for (var j = (this.barres.length / 2); j < this.barres.length - (this.nbrHor - 1); j++) {
+    for (var i = 0; i < this.barresVer.length - 1;) {
+        for (var j = 0; j < this.barresHor.length - (this.nbrHor - 1); j++) {
             var mod = i%this.nbrHor;
-
-            var barreV1 = (this.barres[i]);
-            var barreV2 = (this.barres[i+1]);
-            var barreH1 = (this.barres[j]);
-            var barreH2 = (this.barres[j + (nbrHor - 1)]);
-
-            var b = [];
-            b.push(barreV1);
-            b.push(barreV2);
-            b.push(barreH1);
-            b.push(barreH2);    
-
           
             var boxe = new Boxe({
-                      barresBoxe : b,
-                      isGot   : false
-             });
-
+                   barreV1 : (this.barresVer[i]),
+                   barreV2 : (this.barresVer[i+1]),
+                   barreH1 : (this.barresHor[j]),
+                   barreH2 : (this.barresHor[j + (nbrVer - 1)]),
+                   isGot   : false
+            });
             this.boxes.push(boxe);    
             if(mod== (this.nbrHor - 2)){
                 i = i + 2;
