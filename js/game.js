@@ -20,6 +20,7 @@ function Barre (params) {
 	this.y = params.y;
 	this.w = params.w;
 	this.h = params.h;
+   // this.state = params.state;
     this.fill = params.fill;
     this.isClicked = params.isClicked;
 }
@@ -34,8 +35,71 @@ Barre.prototype.draw = function(ctx) {
 /******************************************************* */
 // Classe Boxe
 function Boxe (params) {
-    this.barres = params.barres;    // Tableau contenant les 4 barres qui délimitent la boxe
+    this.barresBoxe = params.barresBoxe;    // Tableau contenant les 4 barres qui délimitent la boxe
     this.isGot = false; // est true si toutes les barres ont isClicked à true
+}
+
+Boxe.prototype.contient = function(barre) {
+    for (var index=0; index < this.barresBoxe.length;index++) {
+        // Verifier les coordonnées plutot que comparer les objets
+        if (this.barresBoxe[index].y == barre.y && this.barresBoxe[index].x == barre.x){
+            return true;
+        }
+    }
+    return false; 
+}
+/********************************************************/
+// Classe Player
+function Player (params) {
+    //this.score = params.score;
+    //this.couleur = params.couleur;
+    //this.tour = false;
+    //this.name = params.name;
+}
+
+Player.prototype.ia = function(game) {    
+    //choisir une barre au hasard par default 
+    var chosenBarre = {i: Math.floor((Math.random() * 8) + 0), j: Math.floor((Math.random() * 3) + 0)};
+    for(var i = 0; i < game.boxes.length; i++){ //parcour de toutes les boxes
+        var barresClicked = 0;
+        for(var j = 0; j < 4; j++){ // parcour d'une boxe
+            
+            if(game.boxes[i].barresBoxe[j].isClicked){
+                barresClicked += 1;
+            }          
+        }
+
+        if(barresClicked == 3){ //si dans une boxe il y a 3 barres qui sont déjà cliquées tu prend la 4ème
+            for(var j = 0; j < 4 ; j++){
+                //on stoque la barre meilleure 
+                if(!game.boxes[i].barresBoxe[j].isClicked){
+                   chosenBarre.i = i;
+                   chosenBarre.j = j;
+                   chosenBarre.isScoring = true;
+                }                
+            }                           
+        }
+    }    
+        if(!game.boxes[chosenBarre.i].barresBoxe[chosenBarre.j].isClicked){
+            game.boxes[chosenBarre.i].barresBoxe[chosenBarre.j].fill = "red";
+            game.boxes[chosenBarre.i].barresBoxe[chosenBarre.j].isClicked = true;
+            if(chosenBarre.isScoring){
+                game.score[0]++;
+                game.boxes[chosenBarre.i].isGot = true; 
+            }
+
+        }
+    }
+
+/******************************************************* */
+// Classe Grille 
+function Grille (params) {
+    // Lidée est de creer un tableau de tableaux
+    this.table = [];
+    this.nbrLignes = params.nbrLignes;  // Le nombre de lignes de la grille
+    for (var i = 0; i < this.nbrLignes; i++) {
+        this.table[i] = [];
+    }
 }
 /******************************************************* */
 // Classe Game
@@ -49,7 +113,7 @@ var Game = function(canvas, nbrHor, nbrVer){
     this.stage = undefined;
     this.listening = false;
 
-    this.player = true;
+    this.player = [];
     
     this.score = [0, 0];    // score[0] -> machine     score[1] -> joeur    
     
@@ -58,87 +122,99 @@ var Game = function(canvas, nbrHor, nbrVer){
     this.barres = [];   // Le tableau contenant tous les objets de type "Barre"
     this.boxes = [];    // Le tableau contenant tous les objets de type "Boxe"
     
-    this.barresHor = [];
-    this.barresVer = [];
+    this.barresHor = []; // Le tableau contenant toutes les barres horizentals
+    this.barresVer = []; // Le tableau contenant toutes les barres verticales
 
-    // Construction des deux tableaux dots et barres
-    
+    this.grille = new Grille({
+          nbrLignes: this.nbrHor
+      });
+
+    // Construction des deux tableaux dots
     for (var j = 0; j < this.nbrHor; j++) {
         for (var i =0;  i < this.nbrVer ; i++) {
+        
             this.dots.push(new Dot({
                 x: 50+ 100*i,
                 y: 50+ 100*j,
                 r: 5
             }));
-        }
-    }
-/*
-            if(j!= this.nbrVer - 1) {
-                this.barres.push(new Barre({
-                    x: 45+ 100*i,
-                    y: 55 + 100*j,
-                    w: 10,
-                    h: 90,
-                    fill: "white",
-                    isClicked: false
-                }));
-            }
-            if(i!= this.nbrHor - 1) {
-                this.barres.push(new Barre({
-                    x: 55+ 100*i,
-                    y: 45 + 100*j,
-                    w: 90,
-                    h: 10,
-                    fill: "white",
-                    isClicked: false
-                }));
-            }
-        }
-    }
-    */
-
-    
-    // Construction du tableau barresVer
-    // Barres verticales un ligne après l'autre
-    for (var j = 0; j < this.nbrVer - 1; j++) {
-        for (var i = 0; i < this.nbrHor; i++) {
-            this.barresVer.push(new Barre({
-                x: 45+ 100*i,
-                y: 55 + 100*j,
-                w: 10,
-                h: 90,
-                fill: "white",
-                isClicked: false
-        }));
-        }
-    };
-    // Construction du tableau barresHor
-    // Barres horizontales coulonne après l'autre
-    for (var j = 0; j < this.nbrHor; j++) {
-        for (var i = 0; i < this.nbrVer - 1; i++) {
-            this.barresHor.push(new Barre({
-                x: 55+ 100*i,
-                y: 45 + 100*j,
-                w: 90,
-                h: 10,
-                fill: "white",
-                isClicked: false
-        }));
-        }
-    };
-
-
-
-
         
-    for (var i = 0; i < 16; i++) {
-        this.boxes.push(new Boxe({
+        // Construction du tableau barresVer
+        // Barres verticales une ligne après l'autre
+            if(j!=this.nbrVer-1) {
+                var barre = new Barre({
+                        x: 45+ 100*i,
+                        y: 55 + 100*j,
+                        w: 10,
+                        h: 90,
+                        fill: "white",
+                        isClicked: false
+                });
+               // this.barres.push(barre);
+                this.barresVer.push(barre);
+                //this.barresVer[this.barresVer.length] = this.barres[this.barres.length];
+            };
+       
+        // Construction du tableau barresHor
+        // Barres horizontales une ligne après l'autre 
+        
+            if (i!=this.nbrHor-1) {
+                var barre = new Barre({
+                        x: 55+ 100*i,
+                        y: 45 + 100*j,
+                        w: 90,
+                        h: 10,
+                        fill: "white",
+                        isClicked: false
+                });
+                this.barresHor.push(barre);
+               // this.barres.push(barre);
+                //this.barresHor[this.barresHor.length] = this.barres[this.barres.length];
+            };
+
+        }
+    }
+
+
+    this.barres = this.barresVer.concat(this.barresHor);
+
             // ici faut mettre les quatres barres qui délimitent la boxe en itération
             // Ces barres là faut aller les chercher dans le "this.barres"
             // Pour cela faudrait peut être repenser la structure de données
-            barres: []  
-        })); 
+            
+  
+    for (var i = 0; i < (this.barres.length / 2) - 1;) {
+        for (var j = (this.barres.length / 2); j < this.barres.length - (this.nbrHor - 1); j++) {
+            var mod = i%this.nbrHor;
+
+            var barreV1 = (this.barres[i]);
+            var barreV2 = (this.barres[i+1]);
+            var barreH1 = (this.barres[j]);
+            var barreH2 = (this.barres[j + (nbrHor - 1)]);
+
+            var b = [];
+            b.push(barreV1);
+            b.push(barreV2);
+            b.push(barreH1);
+            b.push(barreH2);    
+
+          
+            var boxe = new Boxe({
+                      barresBoxe : b,
+                      isGot   : false
+             });
+
+            this.boxes.push(boxe);    
+            if(mod== (this.nbrHor - 2)){
+                i = i + 2;
+            } else{     
+            i++;
+            }
+        }
     }
+
+
+
 
     // #########################################################
 
