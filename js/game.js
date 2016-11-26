@@ -21,7 +21,7 @@ var Game = function(canvas, nbrHor, nbrVer){
 
     this.player = [];
     
-    this.score = [0, 0];    // score[0] -> machine     score[1] -> joeur    
+    this.score = [0, 0];    // score[0] -> joueur 1     score[1] -> joueur 2    
     
     
     this.dots = [];     // Le tableau contenant tous les objets de type "Dot"

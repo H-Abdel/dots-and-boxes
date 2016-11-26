@@ -9,7 +9,25 @@
   <script type="text/javascript" src = "js/game.js"></script>
 </head>
 <body>
- <canvas id="canvas"></canvas>
+  <canvas id="canvas"></canvas>
+  <div class="controls">
+
+    <label> Joueur 1 :
+      <select id="selectIa1">
+        <option value="HUMAIN" selected="selected">Humain</option>
+        <option value="RANDOM">Random</option>
+        <option value="CLOSEBOX">Close box</option>
+      </select>
+    </label>
+
+    <label> Joueur 2 :
+      <select id="selectIa2">
+        <option value="HUMAIN">Humain</option>
+        <option value="RANDOM" selected="selected">Random</option>
+        <option value="CLOSEBOX">Close box</option>
+      </select>
+    </label>
+  </div>
 
 <script type="text/javascript">
 
@@ -28,40 +46,12 @@
       var canvas = game.getCanvas();
       var context = game.getContext();
       
-      // **********************************************
-      // ************ Affichage console ***************
-      // inspecter l'objet game
-      console.log(game);
-      
       // inspecter l'attribut barres[] de l'objet game
-      for (var i=0; i < game.barres.length; i++) {
+      /*for (var i=0; i < game.barres.length; i++) {
           console.log( game.barres[i].x + " - " + 
                        game.barres[i].y + " - " + 
                        game.barres[i].w);
-      }
-      
-      // inspecter l'attribut barresVer[] de l'objet game
-      /**
-       *        | | | | | | |
-       *        | | | | | | |
-       *        | | | | | | |
-       */
-      console.log(game.barresVer);
-      
-      // inspecter l'attribut barresHor[] de l'objet game
-      /**
-       *        _ _ _ _ _ _ _
-       *        _ _ _ _ _ _ _ 
-       *        _ _ _ _ _ _ _ 
-       *        _ _ _ _ _ _ _  
-       */
-      console.log(game.barresHor);
-      console.log(game.boxes);
-      
-      // inspecter game.grille
-      console.log(game.grille);
-      // **********************************************
-      // **********************************************
+      }*/
       
             // La boucle du jeu
       // Ceci est appelé après chaque click
@@ -86,12 +76,19 @@
           this.barres[h].draw(context);
           // on rajoute un événement "mousedown" (click) à la barre
           this.addRegionEventListener("mousedown", function(){ 
-            var isScoring = false;
+              var isScoring = false;
+              if(that.player){
+                var color = "blue";
+                var scoreIndex = 0;
+              }else{
+                var color = "red";
+                var scoreIndex = 1;
+              }
               // Le traitement à effectuer quand on click sur la barre "i"
               // Si c'est au joeur de jouer et la barre n'a pas été clickée auparavant
-              if (that.player && !that.barres[h].isClicked) {                
+              if (!that.barres[h].isClicked) {                
                   // Je change la couleur de la barre
-                  that.barres[h].fill = "blue";
+                  that.barres[h].fill = color;
                   // Je designe cette doit comme une barre déjà clickée
                   // Ceci dit qu'il ne saura plus clickable ni par le joueur ni par la machine
                   that.barres[h].isClicked = true;
@@ -115,26 +112,54 @@
                  if(!isScoring){
                   that.player = !that.player;
                  }else{
-                  that.score[1]++;
+                  that.score[scoreIndex]++;
                  }
                                     
               }
           });
           this.closeRegion();          
         }
+
+
+        var selectIa1 = document.getElementById("selectIa1");
+        var typeIa1 = selectIa1.options[selectIa1.selectedIndex].value;
+
+        var selectIa2 = document.getElementById("selectIa2");
+        var typeIa2 = selectIa2.options[selectIa2.selectedIndex].value;
         
-        //la machine joue
-        if (!that.player) { // ce bloc de if est exécuté si et seulement si la variable player est égal à false
-          var machine = new Player();
-          machine.ia(that); //j'appel l'algo de l'IA  
+        //joueur 1
+        if (that.player && typeIa1 != "HUMAIN") { // ce bloc de if est exécuté si c'est au joueur 1 (IA)
+          var machine = new Player("blue", 0);
+
+          if(typeIa == "CLOSEBOX"){
+            machine.closeBox(that);
+          } 
+          else{
+            machine.random(that);
+          }
+
+          that.player = !that.player;          
+        }
+        
+        //joueur 2
+        if (!that.player && typeIa2 != "HUMAIN") { // ce bloc de if est exécuté si c'est au joueur 2 (IA)
+          var machine = new Player("red", 1);
+
+          if(typeIa2 == "CLOSEBOX"){
+            machine.closeBox(that);
+          } 
+          else{
+            machine.random(that);
+          }  
+
           that.player = !that.player;          
         }
 
         // J'affiche le score de chaqu'un en utilisant la fonction
         // writeMessage définit un peu plus haut de ce fichier
         writeMessage(context,
-            "machine : " +this.score[0]+
-            " - joueur : " +this.score[1]
+            "joueur 1 : " +this.score[0]+
+            " - joueur 2 : " +this.score[1]
         );
 
       });
