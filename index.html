@@ -3,6 +3,9 @@
 <head>
 	<title>Dots and boxes</title>
 	<link rel="stylesheet" type="text/css" href="styles/styles.css">
+  <script type="text/javascript" src = "js/function.js"></script>
+  <script type="text/javascript" src = "js/player.js"></script>
+  <script type="text/javascript" src = "js/constructeurs.js"></script>
   <script type="text/javascript" src = "js/game.js"></script>
 </head>
 <body>
@@ -83,9 +86,10 @@
           this.barres[h].draw(context);
           // on rajoute un événement "mousedown" (click) à la barre
           this.addRegionEventListener("mousedown", function(){ 
+            var isScoring = false;
               // Le traitement à effectuer quand on click sur la barre "i"
               // Si c'est au joeur de jouer et la barre n'a pas été clickée auparavant
-              if (that.player && !that.barres[h].isClicked) {
+              if (that.player && !that.barres[h].isClicked) {                
                   // Je change la couleur de la barre
                   that.barres[h].fill = "blue";
                   // Je designe cette doit comme une barre déjà clickée
@@ -101,16 +105,19 @@
                     for (var j in that.boxes[i].barresBoxe) {
                       if (!that.boxes[i].barresBoxe[j].isClicked)
                         that.boxes[i].isGot = false;                    
+                    }
+                    if(that.boxes[i].isGot){
+                      isScoring = true;
                     }   
                   }                  
                 }
-                  // Je remet la variable player à flase en donnant ainsi la main à la machine
-                  // rappel: player = false -> c'est à la machine de jouer
-                  //         player = true  -> c'est au joueur de jouer
+                 
+                 if(!isScoring){
                   that.player = !that.player;
-                  // Je modifie le score on donnant un point au joueur
-                  // rappel : score[o] -> score machine / score[1] -> score joueur
-                  that.score[1]++;                  
+                 }else{
+                  that.score[1]++;
+                 }
+                                    
               }
           });
           this.closeRegion();          
