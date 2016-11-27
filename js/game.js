@@ -1,102 +1,3 @@
-/****************************************************** */
-// Classe Dot
-function Dot (params) {
-	this.x = params.x;
-	this.y = params.y;
-	this.r = params.r;
-}
-
-Dot.prototype.draw = function(ctx) {
-	ctx.beginPath();
-	ctx.arc(this.x,this.y,this.r,0,2*Math.PI);
-    ctx.fillStyle = "black";
-	ctx.fill();
-	ctx.stroke();
-};
-/****************************************************** */
-// Classe Barre
-function Barre (params) {
-	this.x = params.x;
-	this.y = params.y;
-	this.w = params.w;
-	this.h = params.h;
-   // this.state = params.state;
-    this.fill = params.fill;
-    this.isClicked = params.isClicked;
-}
-
-Barre.prototype.draw = function(ctx) {
-	ctx.beginPath();
-	ctx.rect(this.x,this.y,this.w,this.h);
-    ctx.fillStyle = this.fill;
-    ctx.fill();
-	ctx.stroke(); 
-};
-/******************************************************* */
-// Classe Boxe
-function Boxe (params) {
-    this.barresBoxe = params.barresBoxe;    // Tableau contenant les 4 barres qui délimitent la boxe
-    this.isGot = false; // est true si toutes les barres ont isClicked à true
-}
-
-Boxe.prototype.contient = function(barre) {
-    for (var index=0; index < this.barresBoxe.length;index++) {
-        // Verifier les coordonnées plutot que comparer les objets
-        if (this.barresBoxe[index].y == barre.y && this.barresBoxe[index].x == barre.x){
-            return true;
-        }
-    }
-    return false; 
-}
-/********************************************************/
-// Classe Player
-function Player (params) {
-    //this.score = params.score;
-    //this.couleur = params.couleur;
-    //this.tour = false;
-    //this.name = params.name;
-}
-
-Player.prototype.find = function(game){
-    var chosenBarre = {i: Math.floor((Math.random() * 8) + 0), j: Math.floor((Math.random() * 3) + 0)};
-    for(var i = 0; i < game.boxes.length; i++){ //parcour de toutes les boxes
-        var barresClicked = 0;
-        for(var j = 0; j < 4; j++){ // parcour d'une boxe
-            
-            if(game.boxes[i].barresBoxe[j].isClicked){
-                barresClicked += 1;
-            }          
-        }
-
-        if(barresClicked == 3){ //si dans une boxe il y a 3 barres qui sont déjà cliquées tu prend la 4ème
-            for(var j = 0; j < 4 ; j++){
-                //on stoque la barre meilleure 
-                if(!game.boxes[i].barresBoxe[j].isClicked){
-                   chosenBarre.i = i;
-                   chosenBarre.j = j;
-                   chosenBarre.isScoring = true;
-                }                
-            }                           
-        }
-    }
-    return chosenBarre;
-}
-
-Player.prototype.ia = function(game) {    
-    //choisir une barre au hasard par default 
-    var chosenBarre = this.find(game);
-    if(!game.boxes[chosenBarre.i].barresBoxe[chosenBarre.j].isClicked){
-        game.boxes[chosenBarre.i].barresBoxe[chosenBarre.j].fill = "red";
-        game.boxes[chosenBarre.i].barresBoxe[chosenBarre.j].isClicked = true;            
-    }
-    if(chosenBarre.isScoring){        
-        game.score[0]++;
-        game.boxes[chosenBarre.i].isGot = true; 
-        this.ia(game);        
-    }
-}    
-
-/******************************************************* */
 // Classe Grille 
 function Grille (params) {
     // Lidée est de creer un tableau de tableaux
@@ -120,7 +21,7 @@ var Game = function(canvas, nbrHor, nbrVer){
 
     this.player = [];
     
-    this.score = [0, 0];    // score[0] -> machine     score[1] -> joeur    
+    this.score = [0, 0];    // score[0] -> joueur 1     score[1] -> joueur 2    
     
     
     this.dots = [];     // Le tableau contenant tous les objets de type "Dot"
@@ -341,7 +242,7 @@ Game.prototype.setTouchPosition = function(evt){
 
 // ======================================= REGION EVENTS =======================================
 
-Game.prototype.beginRegion = function(){
+ Game.prototype.beginRegion = function(){
     this.currentRegion = {};
     this.regionIndex++;
 };
