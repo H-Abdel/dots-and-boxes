@@ -3,7 +3,7 @@
 <head>
 	<title>Dots and boxes</title>
 	<link rel="stylesheet" type="text/css" href="styles/styles.css">
-  <script type="text/javascript" src = "js/function.js"></script>
+  <script type="text/javascript" src = "js/functions.js"></script>
   <script type="text/javascript" src = "js/player.js"></script>
   <script type="text/javascript" src = "js/constructeurs.js"></script>
   <script type="text/javascript" src = "js/game.js"></script>
@@ -11,7 +11,8 @@
 <body>
   <canvas id="canvas"></canvas>
   <div class="controls">
-
+    
+    <!-- On donne la possibilité de choisir le type de joueur (IAs ou humain) -->
     <label> Joueur 1 :
       <select id="selectIa1">
         <option value="HUMAIN" selected="selected">Humain</option>
@@ -76,6 +77,7 @@
           this.barres[h].draw(context);
           // on rajoute un événement "mousedown" (click) à la barre
           this.addRegionEventListener("mousedown", function(){ 
+            //On definit les paramètres des deux joueurs
               var isScoring = false;
               if(that.player){
                 var color = "blue";
@@ -109,6 +111,7 @@
                   }                  
                 }
                  
+                //si le joueur n'a pas completé une boxe (!isScoring) c'est le tour de l'autre
                  if(!isScoring){
                   that.player = !that.player;
                  }else{
@@ -120,6 +123,9 @@
           this.closeRegion();          
         }
 
+        //On récupère les valeurs du label où on choisit le type d'IA
+        
+        //PROBLEME : SI LES DEUX JOUEURS SONT DES IA IL FAUT QUAND MEME CLIQUER SUR LE CANVAS!!!!!!!!!!
 
         var selectIa1 = document.getElementById("selectIa1");
         var typeIa1 = selectIa1.options[selectIa1.selectedIndex].value;
@@ -131,7 +137,7 @@
         if (that.player && typeIa1 != "HUMAIN") { // ce bloc de if est exécuté si c'est au joueur 1 (IA)
           var machine = new Player("blue", 0);
 
-          if(typeIa == "CLOSEBOX"){
+          if(typeIa1 == "CLOSEBOX"){
             machine.closeBox(that);
           } 
           else{

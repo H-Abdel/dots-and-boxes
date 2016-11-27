@@ -3,8 +3,11 @@ function Player (color, indexPlayer) {
     this.color = color;
     this.indexPlayer = indexPlayer;
 }
+/*************************************/
+//Function qui cherche la meilleure barre a prendre
 
 Player.prototype.find = function(game){
+    //choisir une barre au hasard par default 
     var chosenBarre = {i: Math.floor((Math.random() * 8) + 0), j: Math.floor((Math.random() * 3) + 0)};
 
     for(var i = 0; i < game.boxes.length; i++){ //parcour de toutes les boxes
@@ -33,8 +36,10 @@ Player.prototype.find = function(game){
     return chosenBarre;
 }
 
+/*********************************************/
+//Function d'IA que s'elle a la possibilité de choisir une 4ème barre d'une boxe elle la choit sinon elle soit au hasard
+
 Player.prototype.closeBox = function(game) {    
-    //choisir une barre au hasard par default 
     var chosenBarre = this.find(game);
     if(!game.boxes[chosenBarre.i].barresBoxe[chosenBarre.j].isClicked){
         game.boxes[chosenBarre.i].barresBoxe[chosenBarre.j].fill = this.color;
@@ -47,11 +52,15 @@ Player.prototype.closeBox = function(game) {
     }
 }    
 
+/*********************************************/
+//Function d'IA qui choisit la barre toujour au hasard
+
 Player.prototype.random = function(game) {    
     //choisir une barre au hasard par default 
     var chosenBarre = {i: Math.floor((Math.random() * 8) + 0), j: Math.floor((Math.random() * 3) + 0)};
      var iteration = 0;
 
+//Pour qu'il reste pas dans la boucle en infinit (iteration < 50) 
     while( game.boxes[chosenBarre.i].barresBoxe[chosenBarre.j].isClicked && iteration < 50 ){
 
         chosenBarre = {i: Math.floor((Math.random() * 8) + 0), j: Math.floor((Math.random() * 3) + 0)};
